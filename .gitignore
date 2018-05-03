@@ -99,3 +99,12 @@ ENV/
 
 # mypy
 .mypy_cache/
+*.pyc
+*py*.egg
+
+# Editors
+*.vscode
+*~
+.*.swp
+.Ds_Store
+.bak

@@ -1,13 +1,7 @@
-## [project-title] Changelog
+## Microsoft Azure IoT Starter Kit Companion CLI Changelog
 
 <a name="x.y.z"></a>
-# x.y.z (yyyy-mm-dd)
+# 1.0.0 (2018-05-08)
 
 *Features*
-* ...
-
-*Bug Fixes*
-* ...
-
-*Breaking Changes*
-* ...
+* Initial Release of the Azure IoT Starter Kit Companion CLI
