@@ -18,7 +18,7 @@ if [[ -n $hostapd ]]; then
     echo -n "Checking internet connection"
     while true
     do
-        ping -c1 www.google.com > /dev/null 2>&1 && break
+        ping -c1 www.microsoft.com > /dev/null 2>&1 && break
         echo -n "."
         sleep 1
     done
