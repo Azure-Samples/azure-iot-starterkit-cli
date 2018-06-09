@@ -15,16 +15,25 @@ hostapd=$(systemctl list-units | grep hostapd)
 if [[ -n $hostapd ]]; then
     # Switch mode from AP -> Client
     sh ./scripts/connect_pi.sh $SSID $PASSPHRASE
-    while true; do sleep 5; ping -c1 www.google.com > /dev/null && break; done
+    echo -n "Checking internet connection"
+    while true
+    do
+        ping -c1 www.microsoft.com > /dev/null 2>&1 && break
+        echo -n "."
+        sleep 1
+    done
+    echo "."
 fi
 # additional sleep to make sure any dpkg operations triggered by connecting to the network have started
-sleep 5
+
+echo -n "Checking for dpkg lock.."
 
 while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do
-    echo "waiting for dpkg lock.."
+    echo -n "."
     sleep 1;
 done
-
+echo "."
 
 # Pi is in client mode
+echo "Starting Raspberry Pi configuration"
 sh ./scripts/sendip_and_install.sh $HUB_CONNECTION_STRING $DEVICE_ID $CONNECTION_STRING $CR_NAME $CR_USERNAME $CR_PWD
