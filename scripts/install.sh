@@ -17,7 +17,7 @@ sudo apt-get install python2.7-dev libffi-dev libssl-dev -y
 sudo apt-get install python-pip -y
 sudo pip install --upgrade pip
 sudo pip install setuptools
-sudo pip install -U idna
+sudo pip install -U cryptography idna 
 sudo pip install -U azure-iot-edge-runtime-ctl
 
 # Setup IoT Edge runtime

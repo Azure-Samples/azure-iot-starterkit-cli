@@ -18,6 +18,7 @@ fi
 echo $network >> /etc/wpa_supplicant/wpa_supplicant.conf
 
 systemctl stop hostapd
+cp /etc/dhcpcd.conf /etc/dhcpcd.conf.orig
 sudo sed -i -e "s@^interface wlan0\b@#interface wlan0@g" /etc/dhcpcd.conf
 sudo sed -i -e "s@^static ip_address=$ip\b@#static ip_address=$ip@g" /etc/dhcpcd.conf
 
