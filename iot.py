@@ -55,7 +55,7 @@ FUNCTION_APP_JSON_FILE = """{
     ]
     }"""
 
-SCRIPTS_ZIP_URI = 'http://iotcompanionapptest.blob.core.windows.net/scripts/scripts.zip'
+SCRIPTS_ZIP_URI = 'http://iotcompanionapp.blob.core.windows.net/scripts/scripts.zip'
 LOCATION_OPTIONS = [
     'eastus', 'eastus2', 'centralus', 'southcentralus', 'westcentralus', 'westus',
     'westus2', 'canadaeast', 'canadacentral', 'brazilsouth', 'northeurope',
