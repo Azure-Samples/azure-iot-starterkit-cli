@@ -263,7 +263,7 @@ def prompt_for_device(iot, subcommand):
 
         if existingDevice is None:
             click.secho("IoT Hub Edge Device with name '%s' does not exist. Creating a new IoT Hub Edge Device..." % name)
-            edgeArg = "--edge-enabled" if subcommand == "configure_device" else ""
+            edgeArg = "--edge-enabled" if subcommand == "configure-device" else ""
             existingDevice, err = run_command_with_stderr_json_out(
                 "az iot hub device-identity create %s --resource-group %s "
                 "--hub-name %s --device-id %s" %
@@ -292,7 +292,7 @@ def prompt_for_container_registry(iot):
         click.secho("Checking for Container Registry " + name)
         existingRegistries, err = run_command_with_stderr_json_out("az acr list -g %s" % iot.config['rgroup'])
         for r in existingRegistries:
-            if r["name"] == name:
+            if r["name"].lower() == name.lower():
                 existingRegistry = r
                 click.secho("Using existing Container Registry with name '%s'" % name)
 
