@@ -30,13 +30,14 @@ sudo apt-get install -f
 
 # Setup IoT Edge runtime
 echo "setting up Azure IoT Edge runtime"
+sudo systemctl stop iotedge
 sudo sed -i -e 's@<ADD DEVICE CONNECTION STRING HERE>@'"${CONNECTION_STRING}"'@g' /etc/iotedge/config.yaml
-
-# Send completed status to device twin
-sudo docker run --name iot-device-register-ip -e "HUB_CONNECTION_STRING=${HUB_CONNECTION_STRING}" -e "DEVICE_ID=${DEVICE_ID}" -e "STATUS=Completed" --rm microsoft/azure-iot-starterkit-setuputil:1.0-arm32v7
 
 sleep 10;
 
 echo "starting the IoT Edge runtime"
-sudo systemctl restart iotedge
+sudo systemctl start iotedge
+
+# Send completed status to device twin
+sudo docker run --name iot-device-register-ip -e "HUB_CONNECTION_STRING=${HUB_CONNECTION_STRING}" -e "DEVICE_ID=${DEVICE_ID}" -e "STATUS=Completed" --rm microsoft/azure-iot-starterkit-setuputil:1.0-arm32v7
 
