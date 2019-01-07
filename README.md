@@ -28,6 +28,7 @@ The easiest way to install the Microsoft Azure IoT Starter Kit Companion CLI is 
 
 - `pip install azure-iot-starterkit-cli`
 
+> Note: You might need to add the Python scripts folder to your PATH to use the tool (usually in here 'C:\Users\\[user\]\AppData\Local\Programs\Python\Python37-32\Scripts\') 
 
 ### Quickstart
 Getting a development environment up and running so that you can contribute fixes is easy:
