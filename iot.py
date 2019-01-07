@@ -357,7 +357,7 @@ def runSSHCommand(client, command):
 @click.option('--device-user', help='Username to use to connect to the device.', default='pi')
 @click.option('--device-password', help='Password to use to connect to the device.', default='raspberry')
 @click.option('--fn-name', help='Name for the Azure IoT Sample Function', default='sampleiotfunction')
-@click.version_option('1.0')
+@click.version_option('1.1')
 @click.pass_context
 
 def cli(ctx, wifi_ssid, wifi_password, resource_group, iothub, iothub_sku, device, container_registry, container_registry_sku,

@@ -7,7 +7,7 @@
 
 from setuptools import setup
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 CLASSIFIERS = [
     'Development Status :: 4 - Beta',
@@ -39,7 +39,7 @@ setup(
     author='Azure CAT E2E',
     author_email='azcate2esupport@microsoft.com',
     url = 'https://github.com/Azure-Samples/azure-iot-starterkit-cli',
-    download_url = 'https://github.com/Azure-Samples/azure-iot-starterkit-cli/archive/1.0.0.tar.gz',
+    download_url = 'https://github.com/Azure-Samples/azure-iot-starterkit-cli/archive/1.1.0.tar.gz',
     keywords = ['Azure', 'IoT', 'Microsoft', 'StarterKit', 'CLI', 'teXXmo', 'grove'],
     classifiers=CLASSIFIERS,
     py_modules=['iot'],
