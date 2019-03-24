@@ -129,16 +129,16 @@ def set_missing_parameters(iot):
         click.secho(err)
         sys.exit(1)
 
-    iot.set_config("cs", device_info["cs"])
+    iot.set_config("cs", device_info["connectionString"])
 
     click.secho("Checking for Connection string for IoT Hub with name '%s'" % iot.config['iothub'])
     hub_info, err = run_command_with_stderr_json_out(
-        'az iot hub show-connection-string --resource-group %s --hub-name %s' %
+        'az iot hub show-connection-string --resource-group %s --name %s' %
         (iot.config['rgroup'], iot.config['iothub']))
 
     # stderr actually contains something here on success so check in opposite order
-    if hub_info and "cs" in hub_info:
-        iot.set_config("hub_cs", hub_info["cs"])
+    if hub_info and "connectionString" in hub_info:
+        iot.set_config("hub_cs", hub_info["connectionString"])
     else:
         click.secho(err)
         sys.exit(1)
@@ -399,6 +399,8 @@ def cli(ctx, wifi_ssid, wifi_password, resource_group, iothub, iothub_sku, devic
     ctx.obj.set_config('username', device_user)
     ctx.obj.set_config('password', device_password)
     ctx.obj.set_config('fn_name', fn_name)
+
+    click.secho(device_ip)
 
     prompt_for_wifi_setting(ctx.obj)
 
