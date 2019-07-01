@@ -23,7 +23,8 @@ osPlat = platform.system()
 BUTTON_WIFI_URI = 'http://192.168.4.1/config/wifi'
 BUTTON_HUB_URI = 'http://192.168.4.1/config/iothub'
 BUTTON_CONFIG_URI = 'http://192.168.4.1/config/opsmode'
-BUTTON_HEADERS = {'Content-type':'application/json', 'Accept':'application/json'}
+BUTTON_HEADERS = {'Content-type': 'application/json',
+                  'Accept': 'application/json'}
 BUTTON_WIFI_PAYLOAD = '{"ssid":"%s","password":"%s"}'
 BUTTON_HUB_PAYLOAD = '{"iothub":"%s","iotdevicename":"%s","iotdevicesecret":"%s"}'
 BUTTON_CONFIG_PAYLOAD = "{'opsmode':'client'}"
@@ -68,6 +69,7 @@ CONTAINER_REGISTRY_SKUS = ['Basic', 'Standard', 'Premium', 'Classic']
 
 DEVICE_TAGS_JSON = """{'id': '%s','description': 'Raspberry Pi 3','credentials': {'user': '%s','password': '%s'}}"""
 
+
 class Iot(object):
     """Context for IoT settings."""
 
@@ -80,14 +82,18 @@ class Iot(object):
     def __repr__(self):
         return '<IoT %r>' % self.config
 
+
 pass_iot = click.make_pass_decorator(Iot)
+
 
 def run_command_with_stderr(command):
     """Runs a command in a shell using subprocess.Popen.
     Returns stdout and stderr as outputs."""
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    p = subprocess.Popen(command, stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE, shell=True)
     (stdout, stderr) = p.communicate()
     return stdout, stderr
+
 
 def run_command_with_stderr_json_out(command):
     """Runs a command in a shell using subprocess.Popen.
@@ -96,6 +102,7 @@ def run_command_with_stderr_json_out(command):
     if out == b'' or out == '' or out is None:
         return None, err.decode("utf-8")
     return json.loads(out), err.decode("utf-8")
+
 
 def set_missing_parameters(iot):
     """Queries Azure for mising parameters like iothub hostname, keys,
@@ -111,16 +118,19 @@ def set_missing_parameters(iot):
         iot.set_config("hostname", hub_info["properties"]["hostName"])
 
     if 'key' not in iot.config:
-        click.secho("Checking for Device Identity with name '%s'" % iot.config['device'])
+        click.secho("Checking for Device Identity with name '%s'" %
+                    iot.config['device'])
         existingDevice, err = run_command_with_stderr_json_out(
             "az iot hub device-identity show --resource-group %s --hub-name %s --device-id %s " %
             (iot.config['rgroup'], iot.config['iothub'], iot.config['device']))
         if err:
             click.secho(err)
             sys.exit(1)
-        iot.set_config("key", existingDevice["authentication"]["symmetricKey"]["primaryKey"])
+        iot.set_config(
+            "key", existingDevice["authentication"]["symmetricKey"]["primaryKey"])
 
-    click.secho("Checking for Connection String for device with name '%s'" % iot.config['device'])
+    click.secho("Checking for Connection String for device with name '%s'" %
+                iot.config['device'])
     device_info, err = run_command_with_stderr_json_out(
         'az iot hub device-identity show-connection-string --resource-group %s --hub-name %s '
         '--device-id %s' % (iot.config['rgroup'], iot.config['iothub'],
@@ -131,7 +141,8 @@ def set_missing_parameters(iot):
 
     iot.set_config("cs", device_info["cs"])
 
-    click.secho("Checking for Connection string for IoT Hub with name '%s'" % iot.config['iothub'])
+    click.secho("Checking for Connection string for IoT Hub with name '%s'" %
+                iot.config['iothub'])
     hub_info, err = run_command_with_stderr_json_out(
         'az iot hub show-connection-string --resource-group %s --hub-name %s' %
         (iot.config['rgroup'], iot.config['iothub']))
@@ -143,22 +154,25 @@ def set_missing_parameters(iot):
         click.secho(err)
         sys.exit(1)
 
+
 def prompt_for_wifi_setting(iot):
-     """Prompts the user for a wifi setting if one isn't passed in"""
-     click.secho("\nProcessing network setting")
-     
-     if iot.config['ip'] == DEFAULT_WIFI_AP_ADDRESS:
-         # ip address is of default WiFi AP.  Make sure WiFi settings are specified 
+    """Prompts the user for a wifi setting if one isn't passed in"""
+    click.secho("\nProcessing network setting")
+
+    if iot.config['ip'] == DEFAULT_WIFI_AP_ADDRESS:
+        # ip address is of default WiFi AP.  Make sure WiFi settings are specified
 
         if iot.config['wifi_ssid'] == "":
-            ssid = click.prompt("Please enter the SSID of a WiFi Network with internet access.\nYour device will be configured to connect to this WiFi network")
+            ssid = click.prompt(
+                "Please enter the SSID of a WiFi Network with internet access.\nYour device will be configured to connect to this WiFi network")
             iot.set_config("wifi_ssid", ssid)
 
-            passPhase = click.prompt("Please enter the password for the WiFi Network with internet access", 
-                hide_input=True,
-                confirmation_prompt=True)
+            passPhase = click.prompt("Please enter the password for the WiFi Network with internet access",
+                                     hide_input=True,
+                                     confirmation_prompt=True)
 
-            iot.set_config("wifi_password", passPhase)               
+            iot.set_config("wifi_password", passPhase)
+
 
 def prompt_for_resource_group(iot):
     """Prompts the user for a Resource Group if one isn't passed in"""
@@ -171,17 +185,20 @@ def prompt_for_resource_group(iot):
 
     # check for existence of group
     click.secho("Checking for Resource Group with name '%s'" % name)
-    exists = os.popen('az group exists -n '+ name).read().rstrip()
+    exists = os.popen('az group exists -n ' + name).read().rstrip()
 
     if exists == 'false':
-        click.secho("Resource Group with name '%s' does not exist. Creating a new Resource Group..." % name)
-        click.secho("Specify the location (e.g. 'westus') where the Resouce Group should be created.")
+        click.secho(
+            "Resource Group with name '%s' does not exist. Creating a new Resource Group..." % name)
+        click.secho(
+            "Specify the location (e.g. 'westus') where the Resouce Group should be created.")
         for location in LOCATION_OPTIONS:
             click.secho(" %s" % location)
         location = click.prompt(
             "Please select a location from the list above",
             type=click.Choice(LOCATION_OPTIONS))
-        _, err = run_command_with_stderr('az group create -n %s -l %s' % (name, location))
+        _, err = run_command_with_stderr(
+            'az group create -n %s -l %s' % (name, location))
         if err:
             click.secho(err)
             sys.exit(1)
@@ -198,9 +215,10 @@ def prompt_for_resource_group(iot):
 
     iot.set_config("rgroup", name)
 
+
 def prompt_for_iothub(iot):
     """Prompts the user for an IoT Hub if one isn't passed in"""
-    #TODO: deal with clashes both in terms of globally unique names, sku clashes etc
+    # TODO: deal with clashes both in terms of globally unique names, sku clashes etc
     # right now any error will result in retries
     name = None
     click.secho("\nProcessing IoT Hub")
@@ -216,11 +234,12 @@ def prompt_for_iothub(iot):
             "az iot hub show --resource-group %s --name %s" %
             (iot.config['rgroup'], name))
         if not exists:
-            click.secho("IoT Hub with name '%s' does not exist. Creating a new IoT Hub..." % name)
+            click.secho(
+                "IoT Hub with name '%s' does not exist. Creating a new IoT Hub..." % name)
             output, err = run_command_with_stderr_json_out(
                 "az iot hub create --resource-group %s --name %s --sku %s" %
                 (iot.config['rgroup'], name, iot.config['iothub_sku']))
-            
+
             if output and "properties" in output and "hostName" in output["properties"]:
                 click.secho("Created a new IoTHub '%s'" % name)
                 hostName = output["properties"]["hostName"]
@@ -241,9 +260,10 @@ def prompt_for_iothub(iot):
     iot.set_config("hostname", hostName)
     iot.set_config("iothub", name)
 
+
 def prompt_for_device(iot, subcommand):
     """Prompts the user for an IoT Hub Device if one isn't passed in"""
-    #TODO: deal with specific errors right now any error will result in retries
+    # TODO: deal with specific errors right now any error will result in retries
 
     click.secho("\nProcessing IoT Hub Edge Device")
     existingDevice = None
@@ -254,15 +274,18 @@ def prompt_for_device(iot, subcommand):
             name = iot.config['device']
 
         click.secho("Checking for IoT Hub Edge Device with name '%s'" % name)
-        existingDevices, err = run_command_with_stderr_json_out("az iot hub device-identity list -g %s --hub-name %s" % (iot.config['rgroup'], iot.config['iothub']))
+        existingDevices, err = run_command_with_stderr_json_out(
+            "az iot hub device-identity list -g %s --hub-name %s" % (iot.config['rgroup'], iot.config['iothub']))
 
         for d in existingDevices:
             if d["deviceId"] == name:
                 existingDevice = d
-                click.secho("Using existing IoT Hub Edge Device with name '%s'" % name)
+                click.secho(
+                    "Using existing IoT Hub Edge Device with name '%s'" % name)
 
         if existingDevice is None:
-            click.secho("IoT Hub Edge Device with name '%s' does not exist. Creating a new IoT Hub Edge Device..." % name)
+            click.secho(
+                "IoT Hub Edge Device with name '%s' does not exist. Creating a new IoT Hub Edge Device..." % name)
             edgeArg = "--edge-enabled" if subcommand == "configure-device" else ""
             existingDevice, err = run_command_with_stderr_json_out(
                 "az iot hub device-identity create %s --resource-group %s "
@@ -271,9 +294,11 @@ def prompt_for_device(iot, subcommand):
             if err:
                 click.secho(err)
             else:
-                iot.set_config("key", existingDevice["authentication"]["symmetricKey"]["primaryKey"])
+                iot.set_config(
+                    "key", existingDevice["authentication"]["symmetricKey"]["primaryKey"])
 
     iot.set_config("device", name)
+
 
 def prompt_for_container_registry(iot):
     """Prompts the user for an Azure Container Registry if one isn't passed in"""
@@ -290,17 +315,21 @@ def prompt_for_container_registry(iot):
                 name = iot.config['container_registry']
 
         click.secho("Checking for Container Registry " + name)
-        existingRegistries, err = run_command_with_stderr_json_out("az acr list -g %s" % iot.config['rgroup'])
+        existingRegistries, err = run_command_with_stderr_json_out(
+            "az acr list -g %s" % iot.config['rgroup'])
         for r in existingRegistries:
             if r["name"].lower() == name.lower():
                 existingRegistry = r
-                click.secho("Using existing Container Registry with name '%s'" % name)
+                click.secho(
+                    "Using existing Container Registry with name '%s'" % name)
 
         if existingRegistry is None:
-            click.secho("Container Registry with name '%s' does not exist. Creating a new Container Registry..." % name)
+            click.secho(
+                "Container Registry with name '%s' does not exist. Creating a new Container Registry..." % name)
             # we need to create it, prompt for sku if not specified
             if not iot.config['container_registry_sku']:
-                sku = click.prompt("Specify the sku of the container registry (e.g. Basic)", type=click.Choice(CONTAINER_REGISTRY_SKUS))
+                sku = click.prompt("Specify the sku of the container registry (e.g. Basic)", type=click.Choice(
+                    CONTAINER_REGISTRY_SKUS))
                 iot.set_config("container_registry_sku", sku)
             existingRegistry, err = run_command_with_stderr_json_out(
                 "az acr create --name %s --resource-group %s --sku %s --admin-enabled true" %
@@ -311,7 +340,8 @@ def prompt_for_container_registry(iot):
                 name = None
 
     click.secho("Checking for Azure Container Registry credential")
-    creds, err = run_command_with_stderr_json_out("az acr credential show --name %s --resource-group %s" % (name, iot.config['rgroup']))
+    creds, err = run_command_with_stderr_json_out(
+        "az acr credential show --name %s --resource-group %s" % (name, iot.config['rgroup']))
     if not err:
         iot.set_config("container_registry", name)
         iot.set_config("cr_user", creds["username"])
@@ -320,6 +350,7 @@ def prompt_for_container_registry(iot):
     else:
         click.secho(err)
         sys.exit(1)
+
 
 def createSSHClient(server, port, user, password):
     """Helper function to wrap paramiko's SSHClient"""
@@ -331,6 +362,7 @@ def createSSHClient(server, port, user, password):
     except paramiko.AuthenticationException:
         return None
     return client
+
 
 def runSSHCommand(client, command):
     """Run a command over SSH using a paramiko SSHClient"""
@@ -359,7 +391,6 @@ def runSSHCommand(client, command):
 @click.option('--fn-name', help='Name for the Azure IoT Sample Function', default='sampleiotfunction')
 @click.version_option('1.1')
 @click.pass_context
-
 def cli(ctx, wifi_ssid, wifi_password, resource_group, iothub, iothub_sku, device, container_registry, container_registry_sku,
         device_ip, device_user, device_password, fn_name):
     """Iot is a command line tool that showcases how to configure the Azure
@@ -372,13 +403,14 @@ def cli(ctx, wifi_ssid, wifi_password, resource_group, iothub, iothub_sku, devic
         pingCmd = "ping -c 1 www.microsoft.com >/dev/null 2>&1"
 
     click.secho("\nChecking internet connection")
-    response = 1 
+    response = 1
     while response == 1:
         response = os.system(pingCmd)
-        # check if we can access the device.  If not, prompt user 
+        # check if we can access the device.  If not, prompt user
         if response == 1:
             click.secho("")
-            click.secho("Please ensure you are connected to a network with internet access now.")
+            click.secho(
+                "Please ensure you are connected to a network with internet access now.")
             click.pause("Press any key to continue...")
             click.secho("")
 
@@ -410,6 +442,7 @@ def cli(ctx, wifi_ssid, wifi_password, resource_group, iothub, iothub_sku, devic
 
     set_missing_parameters(ctx.obj)
 
+
 @cli.command()
 @pass_iot
 def configure_device(iot):
@@ -424,7 +457,8 @@ def configure_device(iot):
     prompt_for_container_registry(iot)
 
     # Update the device twin
-    device_tags = DEVICE_TAGS_JSON % (iot.config['device'], iot.config['username'], iot.config['password'])
+    device_tags = DEVICE_TAGS_JSON % (
+        iot.config['device'], iot.config['username'], iot.config['password'])
     _, err = run_command_with_stderr_json_out('az iot hub device-twin update --resource-group %s --hub-name %s --device-id %s --set tags="%s"' %
                                               (iot.config['rgroup'], iot.config['iothub'], iot.config['device'], device_tags))
     if err:
@@ -454,7 +488,7 @@ def configure_device(iot):
 
     while True:
         response = os.system(pingCmd)
-        # check if we can access the device.  If not, prompt user 
+        # check if we can access the device.  If not, prompt user
         if response == 1:
             click.secho("Please connect to SeeedGroveKit SSID now.")
             click.pause("Press any key to continue...")
@@ -469,36 +503,43 @@ def configure_device(iot):
         if response == 0:
             click.secho(".")
             break
-        else :
+        else:
             click.secho(".", nl=False)
             continue
 
     click.secho("Connected to Raspberry Pi")
-    time.sleep(5) # Give 5 seconds for WiFi connection to stablize.
+    time.sleep(5)  # Give 5 seconds for WiFi connection to stablize.
     # Copy scripts to device
     try:
         click.secho("\nCopying scripts to Raspberry Pi")
-        ssh = createSSHClient(iot.config['ip'], 22, iot.config['username'], iot.config['password'])
+        ssh = createSSHClient(
+            iot.config['ip'], 22, iot.config['username'], iot.config['password'])
         if not ssh:
-            click.secho("Failed to SSH to the Device. Please check the device-user and device-password and try again")
+            click.secho(
+                "Failed to SSH to the Device. Please check the device-user and device-password and try again")
             return
 
         scp_client = SCPClient(ssh.get_transport())
         scp_client.put("scripts.zip", "scripts.zip")
         os.remove("scripts.zip")
     except BaseException as e:
-        click.secho("Error in copying scripts to device. Error message: " + str(e))
+        click.secho(
+            "Error in copying scripts to device. Error message: " + str(e))
         return
     try:
-        click.secho("\nConnecting to your device and installing pre-requisites (Step 1 of 2).")
+        click.secho(
+            "\nConnecting to your device and installing pre-requisites (Step 1 of 2).")
         runSSHCommand(ssh, unzip_scripts)
-        click.secho("Installing the required software now (Step 2 of 2). This script will exit shortly, but setup on your ")
-        click.secho("device will take several minutes. Execute 'tail -f ~/connect.log' on the device to view setup progress.")
+        click.secho(
+            "Installing the required software now (Step 2 of 2). This script will exit shortly, but setup on your ")
+        click.secho(
+            "device will take several minutes. Execute 'tail -f ~/connect.log' on the device to view setup progress.")
         runSSHCommand(ssh, run_script)
     except BaseException as e:
         click.secho("Failed to SSH to the Device. Please check the device-user and device-password and try again. "
                     "Error message: " + str(e))
         return
+
 
 def createSampleFunctionApp(iot):
     """Helper function to create an Azure Sample Function Application once
@@ -512,10 +553,12 @@ def createSampleFunctionApp(iot):
         for a in existingAccounts:
             if a["name"] == name:
                 existingAccount = a
-                click.secho("Using existing Storage Account with name '%s'" % name)
+                click.secho(
+                    "Using existing Storage Account with name '%s'" % name)
 
         if existingAccount is None:
-            click.secho("Storage Account with name '%s' does not exist. Creating a new Storage Account..." % name)
+            click.secho(
+                "Storage Account with name '%s' does not exist. Creating a new Storage Account..." % name)
             existingAccount, err = run_command_with_stderr_json_out(
                 "az storage account create --name %s --resource-group %s --sku Standard_LRS" %
                 (name, iot.config['rgroup']))
@@ -529,7 +572,8 @@ def createSampleFunctionApp(iot):
         "az functionapp create -g %s -n %s -s %s -c %s" %
         (iot.config['rgroup'], fnName, name, iot.config['location'] if 'location' in iot.config else 'westus'))
 
-    iothub, err = run_command_with_stderr_json_out("az iot hub show -n %s" % iot.config['iothub'])
+    iothub, err = run_command_with_stderr_json_out(
+        "az iot hub show -n %s" % iot.config['iothub'])
     eventHubEndpoint = iothub['properties']['eventHubEndpoints']['events']['endpoint']
     eventHubPath = iothub['properties']['eventHubEndpoints']['events']['path']
     hubSubstring = iot.config['hub_cs'].split(";", 1)[1]
@@ -542,8 +586,10 @@ def createSampleFunctionApp(iot):
 
     tmpFile = os.path.join(tempfile.mkdtemp(), 'iotbuttonmyfunction.zip')
     with zipfile.ZipFile(tmpFile, 'w') as myzip:
-        myzip.writestr('iotbuttonmyfunction/index.js', FUNCTION_APP_INDEX_JS_FILE)
-        myzip.writestr('iotbuttonmyfunction/function.json', FUNCTION_APP_JSON_FILE % eventHubPath)
+        myzip.writestr('iotbuttonmyfunction/index.js',
+                       FUNCTION_APP_INDEX_JS_FILE)
+        myzip.writestr('iotbuttonmyfunction/function.json',
+                       FUNCTION_APP_JSON_FILE % eventHubPath)
 
     cmd = ("az functionapp deployment source config-zip -g %s --name %s --src %s" %
            (iot.config['rgroup'], fnName, tmpFile))
@@ -567,11 +613,13 @@ def configure_button(iot):
     click.secho("")
 
     # First POST call sets the Wi-fi parameters
-    data = BUTTON_WIFI_PAYLOAD % (iot.config['wifi_ssid'], iot.config['wifi_password'])
+    data = BUTTON_WIFI_PAYLOAD % (
+        iot.config['wifi_ssid'], iot.config['wifi_password'])
     requests.post(BUTTON_WIFI_URI, headers=BUTTON_HEADERS, data=data)
 
     # Second POST call sets up the button as an IoT Device
-    data = BUTTON_HUB_PAYLOAD % (iot.config['hostname'], iot.config['device'], iot.config['key'])
+    data = BUTTON_HUB_PAYLOAD % (
+        iot.config['hostname'], iot.config['device'], iot.config['key'])
     requests.post(BUTTON_HUB_URI, headers=BUTTON_HEADERS, data=data)
 
     # Third POST call puts the button into client mode
@@ -587,5 +635,3 @@ def configure_button(iot):
     if click.confirm('Would you like to set up a Sample Azure Function Application for the Button? (This may result in charges)'):
         click.secho("")
         createSampleFunctionApp(iot)
-
-
