@@ -175,7 +175,7 @@ def prompt_for_resource_group(iot):
 
     if exists == 'false':
         click.secho("Resource Group with name '%s' does not exist. Creating a new Resource Group..." % name)
-        click.secho("Specify the location (e.g. 'westus') where the Resouce Group should be created.")
+        click.secho("Specify the location (e.g. 'westus') where the Resource Group should be created.")
         for location in LOCATION_OPTIONS:
             click.secho(" %s" % location)
         location = click.prompt(
